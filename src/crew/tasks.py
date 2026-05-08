@@ -3,7 +3,7 @@ from crew.agents import get_monitor_agent, get_analyzer_agent, get_executor_agen
 
 def get_monitor_task(agent):
     return Task(
-        description = """Scan all running and stopped Docker containers 0n this system. Identify any container that have status of 'exited' or 'dead', Return a clear list of failed containers with their name, status and ID.
+        description = """Scan all running and stopped Docker containers on this system. Identify any container that have status of 'exited' or 'dead', Return a clear list of failed containers with their name, status and ID.
         If all containers are healthy, report that clearly.""",
         expected_output=""" A list of failed containers in this format:
         - Container Name: <name> | Status: <status> | ID: <id>
