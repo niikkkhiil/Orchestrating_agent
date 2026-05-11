@@ -15,17 +15,19 @@ def get_analyzer_task(agent, context):
     return Task(
         description="""
         For each failed container identified by the monitor:
-        1. Fetch the last 50 lines of logs from that container
-        2. Analyze the logs to identify the root cause of failure
-        3. Recommend the exact fix needed
-        
-        Be specific about what caused the failure and what action to take.
+        1. Search memory using SearchMemory tool with the container name
+        2. If MEMORY HIT — use the known fix directly
+        3. If NO MEMORY HIT:
+           - Fetch logs using GetContainerLogs
+           - Analyze root cause
+           - Save to memory using SaveToMemory: 'container_name|||diagnosis|||fix'
         """,
         expected_output="""
         For each failed container:
         - Container: <name>
-        - Cause: <what caused the failure>
-        - Fix: <exact recommended action>
+        - Source: MEMORY or LLM ANALYSIS
+        - Cause: <cause>
+        - Fix: <fix>
         """,
         agent=agent,
         context=context
@@ -50,3 +52,4 @@ def get_executor_task(agent, context):
         agent=agent,
         context=context
     )
+

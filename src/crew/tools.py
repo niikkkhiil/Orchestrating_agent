@@ -85,3 +85,35 @@ def restart_container(container_name: str) -> str:
         return f"Successfully restarted: {container.name}"
     except Exception as e:
         return f"Failed to restart {container_name}: {e}"
+    
+
+@tool("MemorySearch")
+def search_memory_tool(container_name: str) -> str:
+    """Search past incidents by container name. Input: just the container name string."""
+    try:
+        from crew.memory import search_memory
+        result = search_memory(container_name.strip(), "")
+        if result:
+            return f"MEMORY HIT: {result['fix']}"
+        return "NO MEMORY HIT: analyze logs manually."
+    except Exception as e:
+        return f"Error: {e}"
+
+
+@tool("MemorySave")
+def save_memory_tool(container_name: str) -> str:
+    """Save container incident to memory. Input: 'name|||diagnosis|||fix'"""
+    try:
+        parts = container_name.split("|||")
+        if len(parts) < 3:
+            return "Error: need name|||diagnosis|||fix"
+        from crew.memory import save_to_memory
+        save_to_memory(
+            container_name=parts[0].strip(),
+            logs="",
+            diagnosis=parts[1].strip(),
+            fix=parts[2].strip()
+        )
+        return f"Saved: {parts[0].strip()}"
+    except Exception as e:
+        return f"Error: {e}"

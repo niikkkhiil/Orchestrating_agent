@@ -5,5 +5,12 @@
     "diagnosis": "Port 80 is already occupied by another process.",
     "fix": "Restart the container. If recurring, check for port conflicts.",
     "timestamp": "2026-05-10T12:51:18.588981"
+  },
+  {
+    "container_name": "test-nginx",
+    "logs_preview": "",
+    "diagnosis": "Worker process exit with code 0",
+    "fix": "Restart the worker process",
+    "timestamp": "2026-05-11T12:49:45.506740"
   }
 ]
