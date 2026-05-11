@@ -10,7 +10,7 @@ langfuse = Langfuse(
     host=os.getenv("LANGFUSE_HOST")
 )
 
-print("✅ Connected")
+print("Connected")
 
 # v4 correct API
 with langfuse.start_as_current_observation(
@@ -20,7 +20,7 @@ with langfuse.start_as_current_observation(
         input={"container": "test-nginx", "status": "exited"},
         output={"action": "restarted", "result": "success"}
     )
-    print(f"✅ Trace ID: {langfuse.get_current_trace_id()}")
+    print(f"Trace ID: {langfuse.get_current_trace_id()}")
 
 langfuse.flush()
-print("✅ Flushed — check cloud.langfuse.com now")
+print("Flushed — check cloud.langfuse.com now")

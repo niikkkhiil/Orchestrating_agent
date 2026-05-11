@@ -117,3 +117,66 @@ def save_memory_tool(container_name: str) -> str:
         return f"Saved: {parts[0].strip()}"
     except Exception as e:
         return f"Error: {e}"
+    
+
+@tool("AnalyzeErrorType")
+def analyze_error_type(container_name: str) -> str:
+    """Analyze container logs and return the specify error type and recommand action on it."""
+
+    try:
+        if isinstance(container_name, dict):
+            container_name = container_name.get("container_name", "")
+
+        container_name = str(container_name).strip()
+
+        try:
+            container = client.containers.get(container_name)
+        
+        except Exception:
+            all_containers = client.containers.list(all=True)
+
+            container = next(
+                (c for c in all_containers
+                 if c.short_id in container_name or c.name in container_name),
+                None
+            )
+            if not container:
+                return f"Container not found: {container_name}"
+            
+            logs = container.logs(tail=50).decode("utf-8")
+            attrs = container.attrs
+            exit_code = attrs.get('State', {}).get('ExitCode', "-1")
+            oom_killed = attrs.get('State', {}).get('OOMKilled', False)
+
+            if oom_killed or exit_code == 137 or "killed" in logs:
+                return "ERROR_TYPE: OOM_KILLED | ACTION: increase_memory | SEVERITY: high"
+
+            elif "address already in use" in logs or "port" in logs and "bind" in logs:
+                return "ERROR_TYPE: PORT_CONFLICT | ACTION: free_port | SEVERITY: medium"
+
+            elif exit_code == 0:
+                return "ERROR_TYPE: CLEAN_EXIT | ACTION: restart | SEVERITY: low"
+
+            elif exit_code == 1 and any(x in logs for x in ["env", "config", "missing", "keyerror"]):
+                return "ERROR_TYPE: CONFIG_ERROR | ACTION: check_env_vars | SEVERITY: high"
+
+            elif exit_code == 1:
+                return "ERROR_TYPE: APP_CRASH | ACTION: restart_and_alert | SEVERITY: high"
+
+            elif "no space left" in logs:
+                return "ERROR_TYPE: DISK_FULL | ACTION: prune_docker | SEVERITY: critical"
+
+            elif "connection refused" in logs or "could not connect" in logs:
+                return "ERROR_TYPE: NETWORK_ERROR | ACTION: restart_with_delay | SEVERITY: medium"
+
+        else:
+            return f"ERROR_TYPE: UNKNOWN | EXIT_CODE: {exit_code} | ACTION: restart_and_alert | SEVERITY: medium"
+
+    except Exception as e:
+        return f"Error analyzing container: {e}"
+            
+@tool("SmartFix")
+def smart_fix(input: str) -> str:
+    """Apply the right fix based on error type. Input: 'container_name|||error_type'"""
+
+    try:           

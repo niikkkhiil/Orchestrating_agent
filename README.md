@@ -1,6 +1,6 @@
 # 🛡️ Self-Healing DevOps Agent
 
-An autonomous infrastructure monitoring and remediation system that detects Docker container failures and fixes them automatically — with zero human intervention.
+An autonomous infrastructure monitoring and remediation system that detects Docker container failures, diagnose them using AI and fixes them automatically, with zero human intervention.
 
 > **Status:** 🚧 In Progress — actively building
 
@@ -36,7 +36,9 @@ This agent removes that loop entirely.
 
 ## 🏗️ Architecture
 
+
 ```
+
 ┌─────────────────────────────────────────────────────┐
 │                Self-Healing Agent Loop              │
 │                                                     │
@@ -144,8 +146,8 @@ python3 agents.py
 - [x] **Step 3** — Auto-restart failed containers
 - [x] **Step 4** — LLM-powered failure analysis (OpenAI)
 - [x] **Step 5** — Multi-agent architecture (CrewAI)
-- [ ] **Step 6** — Incident memory (FAISS + MCP)
-- [ ] **Step 7** — Full observability (Langfuse + eval suite)
+- [x] **Step 6** — Incident memory (FAISS + MCP)
+- [x] **Step 7** — Full observability (Langfuse + eval suite)
 - [ ] **Step 8** — CI/CD pipeline + Docker deployment
 
 ---

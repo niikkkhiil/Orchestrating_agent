@@ -18,6 +18,7 @@ def get_monitor_agent(llm):
         llm=llm,
         verbose = True
     )
+
 def get_analyzer_agent(llm):
     return Agent(
         role = "Failure Analyzer",
@@ -42,7 +43,6 @@ def get_executor_agent(llm):
         verbose = True
     )
 
-
 def get_monitor_agent(llm):
     return Agent(
         role="Infrastructure Monitor",
@@ -54,7 +54,6 @@ def get_monitor_agent(llm):
         llm=llm,
         verbose=True
     )
-
 
 def get_analyzer_agent(llm):
     return Agent(
@@ -68,7 +67,6 @@ def get_analyzer_agent(llm):
         llm=llm,
         verbose=True
     )
-
 
 def get_executor_agent(llm):
     return Agent(
