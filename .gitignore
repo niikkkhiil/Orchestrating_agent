@@ -1,5 +1,0 @@
-orch
-.env
-*.log
-*.tmp
-memory/*
