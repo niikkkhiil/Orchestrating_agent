@@ -92,9 +92,14 @@ def search_incidents(container_name: str) -> str:
     """Search past incidents by container name. Input: just the container name string."""
     try:
         from crew.memory import search_memory
-        result = search_memory(container_name.strip(), "")
+        name = container_name.strip()
+        try:
+            logs = client.containers.get(name).logs(tail=50).decode("utf-8")
+        except Exception:
+            logs = ""
+        result = search_memory(name, logs)
         if result:
-            return f"MEMORY HIT: {result['fix']}"
+            return f"MEMORY HIT | ERROR_TYPE: {result['diagnosis']} | ACTION: {result['fix']}"
         return "NO MEMORY HIT: analyze logs manually."
     except Exception as e:
         return f"Error: {e}"
@@ -107,14 +112,19 @@ def save_incident(container_name: str) -> str:
         parts = container_name.split("|||")
         if len(parts) < 3:
             return "Error: need name|||diagnosis|||fix"
+        name = parts[0].strip()
+        try:
+            logs = client.containers.get(name).logs(tail=50).decode("utf-8")
+        except Exception:
+            logs = ""
         from crew.memory import save_to_memory
         save_to_memory(
-            container_name=parts[0].strip(),
-            logs="",
+            container_name=name,
+            logs=logs,
             diagnosis=parts[1].strip(),
             fix=parts[2].strip()
         )
-        return f"Saved: {parts[0].strip()}"
+        return f"Saved: {name}"
     except Exception as e:
         return f"Error: {e}"
     
@@ -201,9 +211,10 @@ def smart_fix(container_and_error: str) -> str:
             return f"Restarted cleanly stopped container: {container_name}"
 
         elif "DISK_FULL" in error_type:
-            # Prune unused Docker resources
-            import subprocess
-            subprocess.run(["docker", "system", "prune", "-f"], capture_output=True)
+            # Prune unused Docker resources via SDK
+            client.containers.prune()
+            client.images.prune()
+            client.volumes.prune()
             container.restart()
             return f"Pruned Docker system and restarted: {container_name}"
 
@@ -230,12 +241,10 @@ def smart_fix(container_and_error: str) -> str:
 def prune_docker(dummy: str = "") -> str:
     """Remove unused Docker containers, images and volumes to free disk space."""
     try:
-        import subprocess
-        result = subprocess.run(
-            ["docker", "system", "prune", "-f"],
-            capture_output=True, text=True
-        )
-        return f" Docker pruned:\n{result.stdout}"
+        client.containers.prune()
+        client.images.prune()
+        client.volumes.prune()
+        return "Docker pruned: unused containers, images, and volumes removed."
     except Exception as e:
         return f"Prune failed: {e}"      
 

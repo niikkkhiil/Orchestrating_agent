@@ -1,0 +1,8 @@
+orch
+.env
+*.log
+*.tmp
+memory/
+__pycache__/
+*.pyc
+.DS_Store
